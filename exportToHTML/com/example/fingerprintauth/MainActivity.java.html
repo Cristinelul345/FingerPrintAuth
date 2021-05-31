@@ -1,0 +1,154 @@
+<html>
+<head>
+<title>MainActivity.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #808080;}
+.s4 { color: #629755; font-style: italic;}
+.s5 { color: #77b767; font-style: italic;}
+.s6 { color: #629755; font-weight: bold; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+MainActivity.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com.example.fingerprintauth</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">androidx.annotation.NonNull</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.annotation.RequiresApi</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.appcompat.app.AppCompatActivity</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.core.content.ContextCompat</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">android.annotation.SuppressLint</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.graphics.Color</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.hardware.biometrics.BiometricManager</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.hardware.biometrics.BiometricPrompt</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.hardware.biometrics.BiometricPrompt.AuthenticationCallback</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.os.Build</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.os.Bundle</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.view.View</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.view.ViewGroup</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.Button</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.TextView</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.Toast</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">java.util.concurrent.Executor</span><span class="s0">;</span>
+
+<span class="s0">public class </span><span class="s1">MainActivity </span><span class="s0">extends </span><span class="s1">AppCompatActivity {</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">addContentView(View view</span><span class="s0">, </span><span class="s1">ViewGroup.LayoutParams params) {</span>
+        <span class="s0">super</span><span class="s1">.addContentView(view</span><span class="s0">, </span><span class="s1">params)</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@SuppressLint(</span><span class="s2">&quot;SetTextI18n&quot;</span><span class="s1">)</span>
+    <span class="s1">@RequiresApi(api = Build.VERSION_CODES.Q)</span>
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">onCreate(Bundle savedInstanceState) {</span>
+        <span class="s0">super</span><span class="s1">.onCreate(savedInstanceState)</span><span class="s0">;</span>
+        <span class="s1">setContentView(R.layout.activity_main)</span><span class="s0">;</span>
+
+        <span class="s1">TextView msg_txt = findViewById(R.id.txt_msg)</span><span class="s0">;</span>
+        <span class="s1">Button login_btn = findViewById(R.id.login_btn)</span><span class="s0">;</span>
+
+        <span class="s1">androidx.biometric.BiometricManager biometricManager = androidx.biometric.BiometricManager.from(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s0">switch </span><span class="s1">(biometricManager.canAuthenticate()) { </span><span class="s3">// vom verifica cu switch diferitele functionalitati</span>
+            <span class="s0">case   </span><span class="s1">androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS: </span><span class="s3">// asta inseamna ca putem utiliza senzorul biometric</span>
+                <span class="s1">msg_txt.setText(</span><span class="s2">&quot;You can use the fingerprint sensor to login&quot;</span><span class="s1">)</span><span class="s0">;</span>
+                <span class="s1">msg_txt.setTextColor(Color.parseColor(</span><span class="s2">&quot;#fafafa&quot;</span><span class="s1">))</span><span class="s0">;</span>
+                <span class="s0">break;</span>
+            <span class="s0">case </span><span class="s1">androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE: </span><span class="s3">// asta inseamna ca dispozitivul nu are un senzor de amprenta</span>
+                <span class="s1">msg_txt.setText(</span><span class="s2">&quot;the device don't have a fingerprint sensor&quot;</span><span class="s1">)</span><span class="s0">;</span>
+                <span class="s1">login_btn.setVisibility(View.GONE)</span><span class="s0">;</span>
+                <span class="s0">break;</span>
+            <span class="s0">case </span><span class="s1">androidx.biometric.BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:</span>
+                <span class="s1">msg_txt.setText(</span><span class="s2">&quot;the biometric sensors are currently unavailable&quot;</span><span class="s1">)</span><span class="s0">;</span>
+                <span class="s1">login_btn.setVisibility(View.GONE)</span><span class="s0">;</span>
+                <span class="s0">break;</span>
+            <span class="s0">case </span><span class="s1">androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:</span>
+                <span class="s1">msg_txt.setText(</span><span class="s2">&quot;your device don't have any fingerprint saved, please check your security settings&quot;</span><span class="s1">)</span><span class="s0">;</span>
+                <span class="s1">login_btn.setVisibility(View.GONE)</span><span class="s0">;</span>
+                <span class="s0">break;</span>
+        <span class="s1">}</span>
+
+        <span class="s3">// am verificat daca aputem folosi senzorii biometrici</span>
+        <span class="s3">// acum voi crea un biometric box</span>
+
+
+        <span class="s1">Executor executor = ContextCompat.getMainExecutor(</span><span class="s0">this</span><span class="s1">)</span><span class="s0">;</span>
+
+        <span class="s3">// acum voi crea biometric prompt-ul pentru callback</span>
+        <span class="s3">//acesta ne va da rezultatul autentificarii si daca ne putem loga</span>
+
+        <span class="s1">androidx.biometric.BiometricPrompt biometricPrompt = </span><span class="s0">new </span><span class="s1">androidx.biometric.BiometricPrompt(MainActivity.</span><span class="s0">this, </span><span class="s1">executor</span><span class="s0">, new </span><span class="s1">androidx.biometric.BiometricPrompt.AuthenticationCallback() {</span>
+            <span class="s4">/**</span>
+             <span class="s4">* Called when an unrecoverable error has been encountered and authentication has stopped.</span>
+             <span class="s4">*</span>
+             <span class="s4">* </span><span class="s5">&lt;p&gt;</span><span class="s4">After this method is called, no further events will be sent for the current</span>
+             <span class="s4">* authentication session.</span>
+             <span class="s4">*</span>
+             <span class="s4">* </span><span class="s6">@param </span><span class="s4">errorCode An integer ID associated with the error.</span>
+             <span class="s4">* </span><span class="s6">@param </span><span class="s4">errString A human-readable string that describes the error.</span>
+             <span class="s4">*/</span>
+
+            <span class="s3">//  metoda asta este called cand este o eroare la autentificare</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onAuthenticationError(</span><span class="s0">int </span><span class="s1">errorCode</span><span class="s0">, </span><span class="s1">@NonNull CharSequence errString) {</span>
+                <span class="s0">super</span><span class="s1">.onAuthenticationError(errorCode</span><span class="s0">, </span><span class="s1">errString)</span><span class="s0">;</span>
+            <span class="s1">}</span>
+
+            <span class="s4">/**</span>
+             <span class="s4">* Called when a biometric (e.g. fingerprint, face, etc.) is recognized, indicating that the</span>
+             <span class="s4">* user has successfully authenticated.</span>
+             <span class="s4">*</span>
+             <span class="s4">* </span><span class="s5">&lt;p&gt;</span><span class="s4">After this method is called, no further events will be sent for the current</span>
+             <span class="s4">* authentication session.</span>
+             <span class="s4">*</span>
+             <span class="s4">* </span><span class="s6">@param </span><span class="s4">result An object containing authentication-related data.</span>
+             <span class="s4">*/</span>
+            <span class="s3">// metoda asta este called cand autentificarea a mers</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onAuthenticationSucceeded(@NonNull androidx.biometric.BiometricPrompt.AuthenticationResult result) {</span>
+                <span class="s0">super</span><span class="s1">.onAuthenticationSucceeded(result)</span><span class="s0">;</span>
+                <span class="s1">Toast.makeText(getApplicationContext()</span><span class="s0">, </span><span class="s2">&quot;Login Success!&quot;</span><span class="s0">, </span><span class="s1">Toast.LENGTH_SHORT).show()</span><span class="s0">;</span>
+            <span class="s1">}</span>
+
+            <span class="s4">/**</span>
+             <span class="s4">* Called when a biometric (e.g. fingerprint, face, etc.) is presented but not recognized as</span>
+             <span class="s4">* belonging to the user.</span>
+             <span class="s4">*/</span>
+            <span class="s3">// metoda asta este cand a failuit autentificarea</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onAuthenticationFailed() {</span>
+                <span class="s0">super</span><span class="s1">.onAuthenticationFailed()</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+        <span class="s3">// biometric Dialog</span>
+        <span class="s3">//androidx.biometric.BiometricPrompt.PromptInfo promptInfo = new androidx.biometric.BiometricPrompt.PromptInfo.Builder()</span>
+        <span class="s1">androidx.biometric.BiometricPrompt.PromptInfo.Builder builder = </span><span class="s0">new </span><span class="s1">androidx.biometric.BiometricPrompt.PromptInfo.Builder()</span><span class="s0">;</span>
+        <span class="s1">builder.setTitle(</span><span class="s2">&quot;Login&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">builder.setDescription(</span><span class="s2">&quot;Use your fingerprint to login to your app&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">builder.setNegativeButtonText(</span><span class="s2">&quot;Cancel&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">androidx.biometric.BiometricPrompt.PromptInfo promptInfo = builder</span>
+                <span class="s1">.build()</span><span class="s0">;</span>
+
+        <span class="s3">// call the dialog cand este apasat butonul de login</span>
+
+        <span class="s1">login_btn.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View view) {</span>
+                <span class="s1">biometricPrompt.authenticate(promptInfo)</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+    <span class="s1">}</span>
+<span class="s1">}</span></pre>
+</body>
+</html>
